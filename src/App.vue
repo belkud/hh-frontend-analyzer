@@ -20,7 +20,7 @@ const allFrontendTechnologies = [
 async function analyzeFrontend(limitPerPage = 100) {
     const url = 'https://api.hh.ru/vacancies';
     const params = {
-        text: 'Frontend-разработчик',
+        text: 'Frontend',
         area: 113, // по России выборка, Москва вроде 1 
         per_page: limitPerPage,  // максимум 100
         period: 30
