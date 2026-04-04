@@ -2,14 +2,27 @@
 import axios from "axios";
 import { ref } from "vue";
 
-const allFrontendTechnologies = [
+const allTechnologies = [
+    // Frontend Technologies
     "HTML", "HTML5", "CSS", "CSS3", "JavaScript", "TypeScript", "JSX", "Dart", "React", "Vue.js", "Vue", "Angular", "Svelte", "SolidJS", "Qwik", "Preact", "Alpine.js", "Ember.js", "Backbone.js", "jQuery", "Lit", "Next.js", "Gatsby", "Remix", "React Native", "TanStack Start", "Nuxt.js", "SvelteKit",
     "Astro", "Eleventy", "Hugo", "Flutter", "Ionic", "NativeScript", "Tailwind CSS", "Bootstrap", "Material UI", "Chakra UI", "Ant Design", "Bulma", "Foundation", "Semantic UI", "UIKit", "PrimeNG",
     "styled-components", "Emotion", "CSS Modules", "Sass/SCSS", "Less", "PostCSS", "Redux", "Zustand", "Jotai", "Recoil", "MobX", "NgRx", "Vuex", "Pinia", "XState", "Effector", "React Query", "SWR", "Apollo Client", "Relay", "GraphQL", "REST API", "Axios", "fetch API", "React Router", "Vue Router", "TanStack Router", "wouter", "Framer Motion", "GSAP", "Anime.js", "Three.js", "D3.js", "React Spring",
     "Lottie", "p5.js", "GreenSock", "Vite", "Webpack", "Parcel", "esbuild", "Rollup", "Turbopack",
     "Babel", "SWC", "TSC", "ESLint", "Prettier", "Stylelint", "Biome", "Jest", "Vitest", "Cypress", "Playwright", "Testing Library", "Mocha", "Chai", "Storybook", "Loki",
     "Web3.js", "ethers.js", "wagmi", "viem", "Workbox", "PWABuilder", "Micro Frontends", "Monorepo", "Module Federation", "Hugo", "Hexo", "Jekyll", "HTMX", "Stimulus", "Mithril", "Inferno", "Riot.js", "Marko", "Composition API", "Git", "UI/UX", "Node", "Node.js", "Express", "HTTP", "Vuetify", "CI/CD", "WebSocket", "Figma", "React.js", "AngularJS", "Docker", "MobX",
+
+
+
+// Backend Technologies
+    "JavaScript", "TypeScript", "Python", "Java", "Go", "PHP", "C#", "Ruby", "Rust", "Kotlin",
+    "Node.js", "Express.js", "Nest.js", "Fastify", "Koa", "AdonisJS", "Django", "Flask", "FastAPI", "Pyramid", "Spring", "Spring Boot", "Hibernate", "Micronaut", "Quarkus", "Laravel", "Symfony", "CodeIgniter", "CakePHP", "Gin", "Echo", "Fiber", "ASP.NET Core", "Entity Framework", ".NET", "Ruby on Rails", "Sinatra",
+    "PostgreSQL", "MySQL", "SQLite", "MariaDB", "Microsoft SQL Server", "Oracle", "MongoDB", "Redis", "Cassandra", "Elasticsearch", "DynamoDB", "CouchDB", "Neo4j", "ArangoDB", "InfluxDB", "ClickHouse", "RabbitMQ", "Apache Kafka",
+    "Redis Pub/Sub", "NATS", "ZeroMQ", "ActiveMQ", "AWS SQS", "Docker", "Kubernetes", "Docker Compose", "Podman", "OpenShift", "Rancher", "Nomad", "GitHub Actions", "GitLab CI", "Jenkins", "CircleCI", "Travis CI", "TeamCity", "ArgoCD", "Flux", "AWS", "EC2", "S3", "Lambda", "API Gateway", "RDS", "DynamoDB", "CloudFront", "Route53", "Azure", "Google Cloud", "GCP", "Heroku", "DigitalOcean", "Vercel", "Netlify", "Cloudflare", "Firebase",
+    "Supabase", "Terraform", "Pulumi", "Ansible", "Chef", "Puppet", "Prometheus", "Grafana", "Datadog", "New Relic", "ELK Stack", "Elasticsearch", "Logstash", "Kibana", "Splunk", "Loki", "Jaeger", "Zipkin", "OpenTelemetry",
+    "REST", "GraphQL", "gRPC", "WebSocket", "SOAP", "MQTT", "AMQP", "OpenAPI", "Swagger", "Postman", "JWT", "OAuth2", "OpenID Connect", "Keycloak", "Auth0", "BCrypt", "Argon2", "Helmet.js", "CORS", "JUnit", "pytest", "PHPUnit", "RSpec", "Jest", "Mocha", "SuperTest", "Mockito", "Cucumber", "JMeter", "k6", "Git", "GitHub", "GitLab", "Bitbucket", "Jira", "Confluence", "Linux", "Ubuntu", "CentOS", "Nginx", "Apache", "Caddy", "Traefik", "HAProxy", "Istio", "Consul", "Vault", "Microservices", "Serverless", "CQRS", "DDD",
+    "HTTP", "HTTPS", "TCP/IP", "DNS", "SSH", "FTP", "SMTP", "WebRTC"
 ];
+// console.log(allTechnologies.length);
 
 const totalFound = ref<number | null>(null);
 const totalPages = ref<number | null>(null);
@@ -63,7 +76,7 @@ async function analyzeFrontend(limitPerPage = 100) {
 
         // анализирую все собранные вакансии
         const techCounter: Record<string, number> = {};
-        allFrontendTechnologies.forEach(tech => {
+        allTechnologies.forEach(tech => {
             techCounter[tech] = 0;
         });
 
@@ -72,7 +85,7 @@ async function analyzeFrontend(limitPerPage = 100) {
             const requirement = (vac.snippet?.requirement || '').toLowerCase();
             const text = title + ' ' + requirement;
 
-            for (const tech of allFrontendTechnologies) {
+            for (const tech of allTechnologies) {
                 if (text.includes(tech.toLowerCase())) {
                     techCounter[tech]++;
                 }
@@ -120,16 +133,17 @@ async function analyzeFrontend(limitPerPage = 100) {
 
 <template>
     <div id="app">
-        <h1>HH Frontend Analyzer 2</h1>
+        <h1>HH Frontend(Backend) Analyzer 2</h1>
         <div class="search-input-wrapper">
-            <input v-model="searchText" type="text" placeholder="Введите запрос для поиска вакансий..."
+            <!-- "(frontend, backend, fullstack)" -->
+            <input v-model="searchText" type="text" placeholder="(Введите запрос для поиска вакансий...)"
                 class="search-input" />
             <span class="input-icon">🔎</span>
         </div>
     </div>
-    <div>✅ Всего найдено ваканний: {{ totalFound }}</div>
+    <div>✅ Всего найдено вакансий: {{ totalFound }}</div>
     <div>📄 Всего страниц: {{ totalPages }}</div>
-    <div v-if="!loadPage">🔍 Ищем вакансии: {{ searchText }}</div>
+    <div v-if="!loadPage">🔍 Ищем вакансию: {{ searchText }}</div>
     <div v-if="loadPage">🚀 Загрузка страниц: {{ currentPage + 1 }} из {{ totalPages }}</div>
     <button @click="analyzeFrontend()" class="search-btn">
         Поиск популярных технологий
