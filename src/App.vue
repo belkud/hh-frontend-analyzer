@@ -113,10 +113,6 @@ async function analyzeFrontend(limitPerPage = 100) {
     }
 }
 
-// ЗАПУСК
-
-analyzeFrontend();
-
 </script>
 
 <template>
@@ -127,6 +123,10 @@ analyzeFrontend();
     <div>📄 Всего страниц: {{ totalPages }}</div>
     <div>🔍 Ищем вакансии Frontend-разработчика...</div>
     <div>🚀 Загрузка страниц: {{ currentPage + 1 }} из {{ totalPages }}</div>
+    <button @click="analyzeFrontend()" class="search-btn">
+        <span class="btn-icon">🔍</span>
+        Поиск популярных технологий
+    </button>
     <br>
     <div v-if="analysisResults.length > 0">
         <div class="results-header">📊 РЕЗУЛЬТАТЫ АНАЛИЗА:</div>
@@ -144,75 +144,3 @@ analyzeFrontend();
         </div>
     </div>
 </template>
-
-
-<style scoped>
-#app {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin-top: 40px;
-}
-
-.results-header {
-    font-size: 20px;
-    font-weight: 700;
-    margin: 20px 0 15px;
-    color: #333;
-}
-
-.results-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
-
-.result-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    margin: 6px 0;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    border-radius: 8px;
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 14px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.result-item:hover {
-    transform: translateX(5px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.tech-name {
-    font-weight: 600;
-    color: #667eea;
-    min-width: 180px;
-}
-
-.tech-stats {
-    color: #555;
-    flex: 1;
-    text-align: right;
-}
-
-.summary {
-    margin-top: 20px;
-    padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    font-size: 16px;
-}
-
-.summary div {
-    margin: 8px 0;
-}
-
-.summary strong {
-    font-weight: 700;
-}
-</style>
