@@ -8,7 +8,7 @@ const allFrontendTechnologies = [
     "styled-components", "Emotion", "CSS Modules", "Sass/SCSS", "Less", "PostCSS", "Redux", "Zustand", "Jotai", "Recoil", "MobX", "NgRx", "Vuex", "Pinia", "XState", "Effector", "React Query", "SWR", "Apollo Client", "Relay", "GraphQL", "REST API", "Axios", "fetch API", "React Router", "Vue Router", "TanStack Router", "wouter", "Framer Motion", "GSAP", "Anime.js", "Three.js", "D3.js", "React Spring",
     "Lottie", "p5.js", "GreenSock", "Vite", "Webpack", "Parcel", "esbuild", "Rollup", "Turbopack",
     "Babel", "SWC", "TSC", "ESLint", "Prettier", "Stylelint", "Biome", "Jest", "Vitest", "Cypress", "Playwright", "Testing Library", "Mocha", "Chai", "Storybook", "Loki",
-    "Web3.js", "ethers.js", "wagmi", "viem", "Workbox", "PWABuilder", "Micro Frontends", "Monorepo", "Module Federation", "Hugo", "Hexo", "Jekyll", "HTMX", "Stimulus", "Mithril", "Inferno", "Riot.js", "Marko"
+    "Web3.js", "ethers.js", "wagmi", "viem", "Workbox", "PWABuilder", "Micro Frontends", "Monorepo", "Module Federation", "Hugo", "Hexo", "Jekyll", "HTMX", "Stimulus", "Mithril", "Inferno", "Riot.js", "Marko", "Composition API", "Git", "UI/UX", "Node", "Node.js", "Express", "HTTP", "Vuetify", "CI/CD", "WebSocket", "Figma", "React.js", "AngularJS", "Docker", "MobX",
 ];
 
 const totalFound = ref<number | null>(null);
@@ -19,15 +19,14 @@ const totalVacancies = ref<number>(0);
 const mostPopular = ref<string>('');
 const loadPage = ref(false)
 const today = new Date
-
-
+const searchText = ref<string>('Frontend');
 
 async function analyzeFrontend(limitPerPage = 100) {
     loadPage.value = true
     const url = 'https://api.hh.ru/vacancies';
     const params = {
-        text: 'Frontend',
-        area: 113, // по России выборка 113, Москва вроде 1 
+        text: searchText.value,
+        area: 113, // по России выборка 113, Москва вроде 1
         per_page: limitPerPage,  // максимум 100
         period: 30
     };
@@ -37,7 +36,11 @@ async function analyzeFrontend(limitPerPage = 100) {
     try {
         // Смотрю общее количество вакансий
         const firstResponse = await axios.get(url, { params });
+        console.log(firstResponse);
+
         totalFound.value = firstResponse.data.found;
+        console.log(totalFound.value);
+
         totalPages.value = firstResponse.data.pages;  // сколько всего страниц
         let allVacancies = [...firstResponse.data.items];
 
@@ -118,13 +121,17 @@ async function analyzeFrontend(limitPerPage = 100) {
 <template>
     <div id="app">
         <h1>HH Frontend Analyzer 2</h1>
+        <div class="search-input-wrapper">
+            <input v-model="searchText" type="text" placeholder="Введите запрос для поиска вакансий..."
+                class="search-input" />
+            <span class="input-icon">🔎</span>
+        </div>
     </div>
-    <div>✅ Всего найдено вакансий: {{ totalFound }}</div>
+    <div>✅ Всего найдено ваканний: {{ totalFound }}</div>
     <div>📄 Всего страниц: {{ totalPages }}</div>
-    <div>🔍 Ищем вакансии Frontend-разработчика...</div>
+    <div v-if="!loadPage">🔍 Ищем вакансии: {{ searchText }}</div>
     <div v-if="loadPage">🚀 Загрузка страниц: {{ currentPage + 1 }} из {{ totalPages }}</div>
     <button @click="analyzeFrontend()" class="search-btn">
-        <span class="btn-icon">🔍</span>
         Поиск популярных технологий
     </button>
     <br>
