@@ -17,12 +17,17 @@ const currentPage = ref<number>(0);
 const analysisResults = ref<{ tech: string; count: number; percent: number; bar: string }[]>([]);
 const totalVacancies = ref<number>(0);
 const mostPopular = ref<string>('');
+const loadPage = ref(false)
+const today = new Date
+
+
 
 async function analyzeFrontend(limitPerPage = 100) {
+    loadPage.value = true
     const url = 'https://api.hh.ru/vacancies';
     const params = {
         text: 'Frontend',
-        area: 113, // по России выборка, Москва вроде 1 
+        area: 113, // по России выборка 113, Москва вроде 1 
         per_page: limitPerPage,  // максимум 100
         period: 30
     };
@@ -34,12 +39,6 @@ async function analyzeFrontend(limitPerPage = 100) {
         const firstResponse = await axios.get(url, { params });
         totalFound.value = firstResponse.data.found;
         totalPages.value = firstResponse.data.pages;  // сколько всего страниц
-
-        // console.log(`✅ Всего найдено вакансий: ${totalFound.value}`);
-        // console.log(`📄 Всего страниц: ${totalPages}`);
-        // console.log(`🚀 Начинаем сбор ${Math.min(totalFound.value ?? 0, 2000)} вакансий...\n`);
-
-        // Собираю все вакансии со всех страниц
         let allVacancies = [...firstResponse.data.items];
 
         const pagesCount = totalPages.value ?? 1;
@@ -113,6 +112,7 @@ async function analyzeFrontend(limitPerPage = 100) {
     }
 }
 
+
 </script>
 
 <template>
@@ -122,14 +122,14 @@ async function analyzeFrontend(limitPerPage = 100) {
     <div>✅ Всего найдено вакансий: {{ totalFound }}</div>
     <div>📄 Всего страниц: {{ totalPages }}</div>
     <div>🔍 Ищем вакансии Frontend-разработчика...</div>
-    <div>🚀 Загрузка страниц: {{ currentPage + 1 }} из {{ totalPages }}</div>
+    <div v-if="loadPage">🚀 Загрузка страниц: {{ currentPage + 1 }} из {{ totalPages }}</div>
     <button @click="analyzeFrontend()" class="search-btn">
         <span class="btn-icon">🔍</span>
         Поиск популярных технологий
     </button>
     <br>
     <div v-if="analysisResults.length > 0">
-        <div class="results-header">📊 РЕЗУЛЬТАТЫ АНАЛИЗА:</div>
+        <div class="results-header">📊 РЕЗУЛЬТАТЫ АНАЛИЗА НА {{ today.toLocaleDateString() }}:</div>
         <div class="results-container">
             <div v-for="item in analysisResults" :key="item.tech" class="result-item">
                 <span class="tech-name">{{ item.tech }}</span>
