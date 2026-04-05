@@ -1,27 +1,10 @@
 <script setup lang="ts">
 import axios from "axios";
 import { ref } from "vue";
+import { techGroups } from "./data/technologies";
 
-const allTechnologies = [
-    // Frontend Technologies
-    "HTML", "HTML5", "CSS", "CSS3", "JavaScript", "TypeScript", "JSX", "Dart", "React", "Vue.js", "Vue", "Angular", "Svelte", "SolidJS", "Qwik", "Preact", "Alpine.js", "Ember.js", "Backbone.js", "jQuery", "Lit", "Next.js", "Gatsby", "Remix", "React Native", "TanStack Start", "Nuxt.js", "SvelteKit",
-    "Astro", "Eleventy", "Hugo", "Flutter", "Ionic", "NativeScript", "Tailwind CSS", "Bootstrap", "Material UI", "Chakra UI", "Ant Design", "Bulma", "Foundation", "Semantic UI", "UIKit", "PrimeNG",
-    "styled-components", "Emotion", "CSS Modules", "Sass/SCSS", "Less", "PostCSS", "Redux", "Zustand", "Jotai", "Recoil", "MobX", "NgRx", "Vuex", "Pinia", "XState", "Effector", "React Query", "SWR", "Apollo Client", "Relay", "GraphQL", "REST API", "Axios", "fetch API", "React Router", "Vue Router", "TanStack Router", "wouter", "Framer Motion", "GSAP", "Anime.js", "Three.js", "D3.js", "React Spring",
-    "Lottie", "p5.js", "GreenSock", "Vite", "Webpack", "Parcel", "esbuild", "Rollup", "Turbopack",
-    "Babel", "SWC", "TSC", "ESLint", "Prettier", "Stylelint", "Biome", "Jest", "Vitest", "Cypress", "Playwright", "Testing Library", "Mocha", "Chai", "Storybook", "Loki",
-    "Web3.js", "ethers.js", "wagmi", "viem", "Workbox", "PWABuilder", "Micro Frontends", "Monorepo", "Module Federation", "Hugo", "Hexo", "Jekyll", "HTMX", "Stimulus", "Mithril", "Inferno", "Riot.js", "Marko", "Composition API", "Git", "UI/UX", "Node", "Node.js", "Express", "HTTP", "Vuetify", "CI/CD", "WebSocket", "Figma", "React.js", "AngularJS", "Docker", "MobX",
-
-
-
-// Backend Technologies
-    "JavaScript", "TypeScript", "Python", "Java", "Go", "PHP", "C#", "Ruby", "Rust", "Kotlin",
-    "Node.js", "Express.js", "Nest.js", "Fastify", "Koa", "AdonisJS", "Django", "Flask", "FastAPI", "Pyramid", "Spring", "Spring Boot", "Hibernate", "Micronaut", "Quarkus", "Laravel", "Symfony", "CodeIgniter", "CakePHP", "Gin", "Echo", "Fiber", "ASP.NET Core", "Entity Framework", ".NET", "Ruby on Rails", "Sinatra",
-    "PostgreSQL", "MySQL", "SQLite", "MariaDB", "Microsoft SQL Server", "Oracle", "MongoDB", "Redis", "Cassandra", "Elasticsearch", "DynamoDB", "CouchDB", "Neo4j", "ArangoDB", "InfluxDB", "ClickHouse", "RabbitMQ", "Apache Kafka",
-    "Redis Pub/Sub", "NATS", "ZeroMQ", "ActiveMQ", "AWS SQS", "Docker", "Kubernetes", "Docker Compose", "Podman", "OpenShift", "Rancher", "Nomad", "GitHub Actions", "GitLab CI", "Jenkins", "CircleCI", "Travis CI", "TeamCity", "ArgoCD", "Flux", "AWS", "EC2", "S3", "Lambda", "API Gateway", "RDS", "DynamoDB", "CloudFront", "Route53", "Azure", "Google Cloud", "GCP", "Heroku", "DigitalOcean", "Vercel", "Netlify", "Cloudflare", "Firebase",
-    "Supabase", "Terraform", "Pulumi", "Ansible", "Chef", "Puppet", "Prometheus", "Grafana", "Datadog", "New Relic", "ELK Stack", "Elasticsearch", "Logstash", "Kibana", "Splunk", "Loki", "Jaeger", "Zipkin", "OpenTelemetry",
-    "REST", "GraphQL", "gRPC", "WebSocket", "SOAP", "MQTT", "AMQP", "OpenAPI", "Swagger", "Postman", "JWT", "OAuth2", "OpenID Connect", "Keycloak", "Auth0", "BCrypt", "Argon2", "Helmet.js", "CORS", "JUnit", "pytest", "PHPUnit", "RSpec", "Jest", "Mocha", "SuperTest", "Mockito", "Cucumber", "JMeter", "k6", "Git", "GitHub", "GitLab", "Bitbucket", "Jira", "Confluence", "Linux", "Ubuntu", "CentOS", "Nginx", "Apache", "Caddy", "Traefik", "HAProxy", "Istio", "Consul", "Vault", "Microservices", "Serverless", "CQRS", "DDD",
-    "HTTP", "HTTPS", "TCP/IP", "DNS", "SSH", "FTP", "SMTP", "WebRTC"
-];
+// Уникальный список всех технологий (для обратной совместимости)
+const allTechnologies = [...new Set(Object.values(techGroups).flat())];
 // console.log(allTechnologies.length);
 
 const totalFound = ref<number | null>(null);
@@ -74,26 +57,51 @@ async function analyzeFrontend(limitPerPage = 100) {
 
         console.log(`\n📊 Собрано вакансий: ${allVacancies.length}\n`);
 
-        // анализирую все собранные вакансии
-        const techCounter: Record<string, number> = {};
-        allTechnologies.forEach(tech => {
-            techCounter[tech] = 0;
+        // Функция для экранирования спецсимволов в regex
+        function escapeRegex(str: string): string {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Анализирую вакансии по группам технологий
+        const groupCounter: Record<string, number> = {};
+
+        // Инициализируем счётчики для всех групп
+        Object.keys(techGroups).forEach(group => {
+            groupCounter[group] = 0;
         });
 
         for (const vac of allVacancies) {
+            // Собираем весь доступный текст из вакансии
             const title = (vac.name || '').toLowerCase();
             const requirement = (vac.snippet?.requirement || '').toLowerCase();
-            const text = title + ' ' + requirement;
+            const responsibility = (vac.snippet?.responsibility || '').toLowerCase();
+            const description = (vac.description || '').toLowerCase();
+            const text = `${title} ${requirement} ${responsibility} ${description}`;
 
-            for (const tech of allTechnologies) {
-                if (text.includes(tech.toLowerCase())) {
-                    techCounter[tech]++;
+            // Проверяем каждую группу технологий
+            for (const [groupName, techVariants] of Object.entries(techGroups)) {
+                let found = false;
+
+                // Ищем любой из вариантов написания в группе
+                for (const tech of techVariants) {
+                    // Создаём regex с границами слов для точного поиска
+                    const escapedTech = escapeRegex(tech.toLowerCase());
+                    const regex = new RegExp(`\\b${escapedTech}\\b`, 'i');
+
+                    if (regex.test(text)) {
+                        found = true;
+                        break; // Если нашли один вариант, прекращаем поиск в этой группе
+                    }
+                }
+
+                if (found) {
+                    groupCounter[groupName]++;
                 }
             }
         }
 
-        // вывожу результат
-        const sorted = Object.entries(techCounter)
+        // Вывожу результат
+        const sorted = Object.entries(groupCounter)
             .sort((a, b) => b[1] - a[1])
             .filter(([_tech, count]) => count > 0);
 
@@ -133,10 +141,10 @@ async function analyzeFrontend(limitPerPage = 100) {
 
 <template>
     <div id="app">
-        <h1>HH Frontend(Backend) Analyzer 2</h1>
+        <h1 class="app-title">HH Frontend(Backend) Analyzer 2</h1>
+        <p class="app-subtitle">Анализатор спроса технологий на рынке труда</p>
         <div class="search-input-wrapper">
-            <!-- "(frontend, backend, fullstack)" -->
-            <input v-model="searchText" type="text" placeholder="(Введите запрос для поиска вакансий...)"
+            <input v-model="searchText" type="text" placeholder="Введите запрос для поиска вакансий..."
                 class="search-input" />
             <span class="input-icon">🔎</span>
         </div>
@@ -165,3 +173,70 @@ async function analyzeFrontend(limitPerPage = 100) {
         </div>
     </div>
 </template>
+
+<style scoped>
+#app {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2.5rem 2rem;
+    border-radius: 16px;
+    margin: 2rem auto;
+    max-width: 700px;
+    box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+    text-align: center;
+}
+
+.app-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0 0 0.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+    font-size: 1.05rem;
+    color: rgba(255, 255, 255, 0.85);
+    margin: 0 0 1.8rem;
+    font-weight: 400;
+}
+
+.search-input-wrapper {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.9rem 3rem 0.9rem 1.3rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.95);
+    font-size: 1rem;
+    color: #333;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.search-input::placeholder {
+    color: #999;
+}
+
+.search-input:focus {
+    border-color: #fff;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+}
+
+.input-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    pointer-events: none;
+    opacity: 0.6;
+}
+</style>
