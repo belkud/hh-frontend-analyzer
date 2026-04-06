@@ -168,7 +168,7 @@ async function analyzeFrontend(limitPerPage = 100) {
             </div>
         </div>
         <div class="summary">
-            <div>✨ Самые популярные: <strong>{{ mostPopular }}</strong></div>
+            <div>✨ Самая популярная: <strong>{{ mostPopular }}</strong></div>
             <div>📈 Всего проанализировано вакансий: <strong>{{ totalVacancies }}</strong></div>
         </div>
     </div>
